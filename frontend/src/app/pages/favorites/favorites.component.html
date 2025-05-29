@@ -1,0 +1,46 @@
+<div class="favorites-container">
+  <div class="container">
+    <h1 class="page-title">Mis Favoritos</h1>
+
+    <!-- Loading State -->
+    <div *ngIf="isLoading" class="loading-container">
+      <div class="loading-spinner"></div>
+      <p>Cargando favoritos...</p>
+    </div>
+
+    <!-- Error State -->
+    <div *ngIf="error && !isLoading" class="error-container">
+      <i class="fas fa-exclamation-triangle"></i>
+      <h2>{{ error }}</h2>
+      <button (click)="reloadFavorites()" class="btn btn-primary">Reintentar</button>
+    </div>
+
+    <!-- Empty State -->
+    <div *ngIf="!isLoading && !error && (!favorites || favorites.length === 0)" class="empty-state">
+      <i class="fas fa-heart-broken"></i>
+      <h2>No tienes productos favoritos</h2>
+      <p>Explora nuestro menú y agrega productos a tus favoritos para verlos aquí</p>
+      <a routerLink="/menu" class="btn btn-primary">Explorar Menú</a>
+    </div>    <!-- Favorites Grid -->
+    <div *ngIf="!isLoading && !error && favorites && favorites.length > 0" class="favorites-grid">
+      <div *ngFor="let product of favorites" class="product-card">
+        <div class="product-image">
+          <img [src]="product.url_imagen" [alt]="product.nombre_producto" onerror="this.src='assets/images/products/default-product.svg'">
+        </div>
+        <div class="product-info">          <h3 class="product-title">{{ product.nombre_producto }}</h3>
+          <p class="product-description">{{ product.descripcion ? (product.descripcion | slice:0:60) : '' }}{{ product.descripcion && product.descripcion.length > 60 ? '...' : '' }}</p>
+          <div class="product-price">${{ (product.precio || 0).toFixed(2) }}</div>
+        </div>
+        <div class="product-actions">
+          <button (click)="removeFromFavorites(product._id || product.id_producto)" class="btn-icon" title="Eliminar de favoritos">
+            <i class="fas fa-heart-broken"></i>
+          </button>
+          <a [routerLink]="['/product', product._id || product.id_producto]" class="btn-secondary">Ver Detalle</a>
+          <button (click)="addToCart(product)" class="btn-primary">
+            <i class="fas fa-shopping-cart"></i> Agregar
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

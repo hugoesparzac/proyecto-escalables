@@ -1,0 +1,236 @@
+<div class="profile-container">
+  <div class="profile-header">
+    <div class="container">
+      <div class="header-content">
+        <div class="profile-info">
+          <h1 class="page-title">Productos</h1>
+          <p class="page-subtitle">Gestiona los productos del sistema</p>
+        </div>
+        <div class="profile-avatar">
+          <div class="avatar-circle">
+            <i class="fas fa-mug-hot"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="profile-content">
+    <div class="container">
+      <!-- Error Message -->
+      <div *ngIf="error" class="error-banner">
+        <i class="fas fa-exclamation-triangle"></i>
+        {{ error }}
+        <button class="btn-close-error" (click)="error = null">×</button>
+      </div>
+      <!-- Loading State -->
+      <div *ngIf="isLoading" class="loading-container">
+        <div class="loading-spinner">
+          <i class="fas fa-spinner fa-spin"></i>
+          <p>Cargando productos...</p>
+        </div>
+      </div>
+      <!-- Products Table -->
+      <div class="table-header-actions">
+        <button class="btn btn-primary" (click)="openCreateModal()">
+          <i class="fas fa-plus"></i> Agregar Producto
+        </button>
+      </div>
+      <div *ngIf="!isLoading" class="table-container">
+        <table class="table" *ngIf="products.length > 0; else emptyState">
+          <thead>
+            <tr>
+              <th>Nombre</th>
+              <th>Precio</th>
+              <th>Stock</th>
+              <th>Estado</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let product of products">
+              <td>
+                <div class="admin-info">
+                  <strong>{{ product.nombre_producto }}</strong>
+                  <small class="admin-id">ID: {{ product._id }}</small>
+                </div>
+              </td>
+              <td>${{ product.precio.toFixed(2) }}</td>
+              <td>{{ product.cantidad_stock }}</td>
+              <td>
+                <span class="status-badge" [ngClass]="product.activo ? 'status-active' : 'status-inactive'">
+                  {{ product.activo ? 'Activo' : 'Inactivo' }}
+                </span>
+              </td>
+              <td>
+                <div class="actions">
+                  <button class="btn-action btn-edit" (click)="openEditModal(product)" title="Editar producto">
+                    <i class="fas fa-edit"></i>
+                  </button>
+                  <button class="btn-action btn-delete" (click)="openDeleteModal(product)" title="Eliminar producto">
+                    <i class="fas fa-trash"></i>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <ng-template #emptyState>
+          <div class="empty-container">
+            <i class="fas fa-mug-hot fa-3x"></i>
+            <h3 class="empty-message">No hay productos</h3>
+            <p>Comienza agregando el primer producto del sistema.</p>
+            <button class="btn btn-primary" (click)="openCreateModal()">
+              <i class="fas fa-plus"></i>
+              Agregar Primer Producto
+            </button>
+          </div>
+        </ng-template>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Crear Producto -->
+  <div *ngIf="showCreateModal" class="modal-overlay" (click)="closeModals()">
+    <div class="modal-container" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2 class="modal-title">Agregar Nuevo Producto</h2>
+        <button class="btn-close" (click)="closeModals()">×</button>
+      </div>
+      <div class="modal-body">
+        <form (ngSubmit)="createProduct()" #createForm="ngForm">
+          <div class="form-group">
+            <label for="createNombre">Nombre del Producto *</label>
+            <input type="text" id="createNombre" class="form-control" [(ngModel)]="productForm.nombre_producto" name="nombre_producto" required placeholder="Ingrese el nombre del producto" />
+          </div>
+          <div class="form-group">
+            <label for="createDescripcion">Descripción *</label>
+            <textarea id="createDescripcion" class="form-control" [(ngModel)]="productForm.descripcion" name="descripcion" required placeholder="Descripción del producto" rows="3"></textarea>
+          </div>
+          <div class="form-row">
+            <div class="form-group half-width">
+              <label for="createPrecio">Precio (MXN) *</label>
+              <input type="number" id="createPrecio" class="form-control" [(ngModel)]="productForm.precio" name="precio" required placeholder="0.00" min="0" step="0.01" />
+            </div>
+            <div class="form-group half-width">
+              <label for="createCalorias">Calorías *</label>
+              <input type="number" id="createCalorias" class="form-control" [(ngModel)]="productForm.calorias" name="calorias" required placeholder="0" min="0" />
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group half-width">
+              <label for="createStock">Cantidad en Stock *</label>
+              <input type="number" id="createStock" class="form-control" [(ngModel)]="productForm.cantidad_stock" name="cantidad_stock" required placeholder="0" min="0" />
+            </div>
+            <div class="form-group half-width">
+              <label for="createCategoria">Categoría *</label>
+              <select id="createCategoria" class="form-control" [(ngModel)]="productForm.id_categoria" name="id_categoria" required>
+                <option [ngValue]="null" disabled>Seleccione una categoría</option>
+                <option *ngFor="let category of categories" [value]="category._id">{{ category.nombre_categoria }}</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="createImagen">URL de la Imagen *</label>
+            <input type="text" id="createImagen" class="form-control" [(ngModel)]="productForm.url_imagen" name="url_imagen" required placeholder="https://ejemplo.com/imagen.jpg" />
+          </div>
+          <div class="form-group checkbox-group">
+            <label class="checkbox-container">
+              <input type="checkbox" [(ngModel)]="productForm.activo" name="activo">
+              <span class="checkbox-label">Producto Activo</span>
+            </label>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" (click)="closeModals()">Cancelar</button>
+            <button type="submit" class="btn btn-primary" [disabled]="!isFormValid || isSubmitting">
+              <i class="fas fa-save" *ngIf="!isSubmitting"></i>
+              {{ isSubmitting ? 'Guardando...' : 'Guardar' }}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Editar Producto -->
+  <div *ngIf="showEditModal" class="modal-overlay" (click)="closeModals()">
+    <div class="modal-container" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2 class="modal-title">Editar Producto</h2>
+        <button class="btn-close" (click)="closeModals()">×</button>
+      </div>
+      <div class="modal-body">
+        <form (ngSubmit)="updateProduct()" #editForm="ngForm">
+          <div class="form-group">
+            <label for="editNombre">Nombre del Producto *</label>
+            <input type="text" id="editNombre" class="form-control" [(ngModel)]="productForm.nombre_producto" name="nombre_producto" required />
+          </div>
+          <div class="form-group">
+            <label for="editDescripcion">Descripción *</label>
+            <textarea id="editDescripcion" class="form-control" [(ngModel)]="productForm.descripcion" name="descripcion" required rows="3"></textarea>
+          </div>
+          <div class="form-row">
+            <div class="form-group half-width">
+              <label for="editPrecio">Precio (MXN) *</label>
+              <input type="number" id="editPrecio" class="form-control" [(ngModel)]="productForm.precio" name="precio" required min="0" step="0.01" />
+            </div>
+            <div class="form-group half-width">
+              <label for="editCalorias">Calorías *</label>
+              <input type="number" id="editCalorias" class="form-control" [(ngModel)]="productForm.calorias" name="calorias" required min="0" />
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group half-width">
+              <label for="editStock">Cantidad en Stock *</label>
+              <input type="number" id="editStock" class="form-control" [(ngModel)]="productForm.cantidad_stock" name="cantidad_stock" required min="0" />
+            </div>
+            <div class="form-group half-width">
+              <label for="editCategoria">Categoría *</label>
+              <select id="editCategoria" class="form-control" [(ngModel)]="productForm.id_categoria" name="id_categoria" required>
+                <option *ngFor="let category of categories" [value]="category._id">{{ category.nombre_categoria }}</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="editImagen">URL de la Imagen *</label>
+            <input type="text" id="editImagen" class="form-control" [(ngModel)]="productForm.url_imagen" name="url_imagen" required />
+          </div>
+          <div class="form-group checkbox-group">
+            <label class="checkbox-container">
+              <input type="checkbox" [(ngModel)]="productForm.activo" name="activo">
+              <span class="checkbox-label">Producto Activo</span>
+            </label>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" (click)="closeModals()">Cancelar</button>
+            <button type="submit" class="btn btn-primary" [disabled]="!isFormValid || isSubmitting">
+              <i class="fas fa-save" *ngIf="!isSubmitting"></i>
+              {{ isSubmitting ? 'Guardando...' : 'Guardar Cambios' }}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Eliminar Producto -->
+  <div *ngIf="showDeleteModal" class="modal-overlay" (click)="closeModals()">
+    <div class="modal-container" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2 class="modal-title">Eliminar Producto</h2>
+        <button class="btn-close" (click)="closeModals()">×</button>
+      </div>
+      <div class="modal-body">
+        <p>¿Estás seguro de que deseas eliminar el producto <strong>{{ selectedProduct?.nombre_producto }}</strong>?</p>
+        <p class="text-danger">Esta acción no se puede deshacer.</p>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" (click)="closeModals()">Cancelar</button>
+          <button type="button" class="btn btn-danger" (click)="deleteProduct()" [disabled]="isSubmitting">
+            <i class="fas fa-trash" *ngIf="!isSubmitting"></i>
+            {{ isSubmitting ? 'Eliminando...' : 'Eliminar' }}
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

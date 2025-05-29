@@ -1,0 +1,207 @@
+<div class="cart-container">
+  <div class="cart-header">
+    <h1 class="cart-title">
+      <i class="fas fa-shopping-cart"></i>
+      Mi Carrito
+    </h1>
+    <p class="cart-subtitle" *ngIf="!isLoading && cart">
+      {{ getCartItemCount() }} {{ getCartItemCount() === 1 ? 'producto' : 'productos' }}
+    </p>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="loading-container">
+    <div class="loading-spinner">
+      <i class="fas fa-spinner fa-spin"></i>
+    </div>
+    <p>Cargando carrito...</p>
+  </div>
+
+  <!-- Error Message -->
+  <div *ngIf="error" class="alert alert-error">
+    <i class="fas fa-exclamation-triangle"></i>
+    {{ error }}
+  </div>
+
+  <!-- Success Message -->
+  <div *ngIf="successMessage" class="alert alert-success">
+    <i class="fas fa-check-circle"></i>
+    {{ successMessage }}
+  </div>
+
+  <!-- Empty Cart -->
+  <div *ngIf="!isLoading && isCartEmpty()" class="empty-cart">
+    <div class="empty-cart-icon">
+      <i class="fas fa-shopping-cart"></i>
+    </div>
+    <h2>Tu carrito está vacío</h2>
+    <p>¡Descubre nuestros deliciosos productos y comienza a llenar tu carrito!</p>
+    <button class="btn btn-primary" (click)="continueShopping()">
+      <i class="fas fa-utensils"></i>
+      Ver Productos
+    </button>
+  </div>
+  <!-- Cart Content -->
+  <div *ngIf="!isLoading && !isCartEmpty()" class="cart-content">
+    <!-- Cart Items Section -->
+    <div class="cart-items">
+      <div class="cart-section-header">
+        <h2>Productos en tu carrito</h2>
+        <button class="btn btn-outline btn-sm" (click)="clearCart()" title="Vaciar carrito">
+          <i class="fas fa-trash"></i>
+          Vaciar carrito
+        </button>
+      </div>
+
+      <div class="cart-item" *ngFor="let item of cart?.productos; trackBy: trackByProductId">
+        <div class="item-image">
+          <img
+            [src]="item.producto.url_imagen || 'assets/images/placeholder-product.jpg'"
+            [alt]="item.producto.nombre_producto"
+            class="product-image"
+          >
+        </div>
+
+        <div class="item-details">
+          <h3 class="item-name">{{ item.producto.nombre_producto }}</h3>
+          <p class="item-price">{{ formatCurrency(item.precio_actual) }} c/u</p>
+
+          <!-- Price change notification -->
+          <div *ngIf="item.cambio_precio" class="price-change-notice">
+            <i class="fas fa-info-circle"></i>
+            <span>El precio de este producto ha cambiado</span>
+          </div>
+
+          <!-- Stock warning -->
+          <div *ngIf="!item.stock_suficiente" class="stock-warning">
+            <i class="fas fa-exclamation-triangle"></i>
+            <span>Stock insuficiente (disponible: {{ item.stock_disponible }})</span>
+          </div>
+        </div>
+
+        <div class="item-quantity">
+          <label for="quantity-{{ item.id_producto }}">Cantidad:</label>
+          <div class="quantity-controls">
+            <button
+              class="quantity-btn"
+              (click)="updateQuantity(item.id_producto, item.cantidad - 1)"
+              [disabled]="isItemLoading(item.id_producto) || item.cantidad <= 1"
+            >
+              <i class="fas fa-minus"></i>
+            </button>
+              <input
+              type="number"
+              class="quantity-input"
+              [id]="'quantity-' + item.id_producto"
+              [value]="item.cantidad"
+              min="1"
+              [max]="item.stock_disponible"
+              [disabled]="isItemLoading(item.id_producto)"
+              (change)="onQuantityChange($event, item.id_producto)"
+            >
+
+            <button
+              class="quantity-btn"
+              (click)="updateQuantity(item.id_producto, item.cantidad + 1)"
+              [disabled]="isItemLoading(item.id_producto) || item.cantidad >= item.stock_disponible"
+            >
+              <i class="fas fa-plus"></i>
+            </button>
+          </div>
+        </div>
+
+        <div class="item-subtotal">
+          <span class="subtotal-label">Subtotal:</span>
+          <span class="subtotal-amount">{{ formatCurrency(getItemSubtotal(item)) }}</span>
+        </div>
+
+        <div class="item-actions">
+          <button
+            class="btn btn-danger btn-sm"
+            (click)="removeProduct(item.id_producto)"
+            [disabled]="isItemLoading(item.id_producto)"
+            title="Eliminar producto"
+          >
+            <i class="fas fa-trash" *ngIf="!isItemLoading(item.id_producto)"></i>
+            <i class="fas fa-spinner fa-spin" *ngIf="isItemLoading(item.id_producto)"></i>
+          </button>
+        </div>
+
+        <!-- Loading overlay for individual items -->
+        <div *ngIf="isItemLoading(item.id_producto)" class="item-loading-overlay">
+          <i class="fas fa-spinner fa-spin"></i>
+        </div>
+      </div>
+    </div>
+
+    <!-- Cart Summary -->
+    <div class="cart-summary">
+      <div class="summary-card">
+        <h3>Resumen del pedido</h3>
+
+        <div class="summary-row">
+          <span>Productos ({{ getCartItemCount() }}):</span>
+          <span>{{ formatCurrency(getCartTotal()) }}</span>
+        </div>
+
+        <div class="summary-row">
+          <span>Subtotal:</span>
+          <span>{{ formatCurrency(getCartTotal()) }}</span>
+        </div>
+
+        <div class="summary-row total-row">
+          <span>Total:</span>
+          <span class="total-amount">{{ formatCurrency(getCartTotal()) }}</span>
+        </div>
+
+        <div class="summary-actions">
+          <button
+            class="btn btn-outline btn-block"
+            (click)="continueShopping()"
+          >
+            <i class="fas fa-arrow-left"></i>
+            Seguir comprando
+          </button>
+
+          <button
+            class="btn btn-primary btn-block"
+            (click)="proceedToPayment()"
+            [disabled]="isCartEmpty()"
+          >
+            <i class="fas fa-credit-card"></i>
+            Proceder al pago
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Formulario de tarjeta de crédito -->
+  <app-credit-card-form
+    [visible]="showCreditCardForm"
+    [amount]="getCartTotal()"
+    [isLoading]="isProcessingPayment"
+    (onSubmit)="handleCardFormSubmit($event)"
+    (onCancel)="handleCardFormCancel()"
+  ></app-credit-card-form>
+
+  <!-- Processing Payment -->
+  <div *ngIf="isProcessingPayment" class="payment-processing-overlay">
+    <div class="payment-processing-content">
+      <div class="spinner">
+        <i class="fas fa-spinner fa-spin"></i>
+      </div>
+      <h3>Procesando pago...</h3>
+      <p>Por favor, espera mientras procesamos tu pago.</p>
+    </div>
+  </div>
+
+  <!-- Removed Products Notice -->
+  <div *ngIf="cart && cart.productos_removidos.length > 0" class="removed-products-notice">
+    <div class="alert alert-warning">
+      <i class="fas fa-exclamation-triangle"></i>
+      <strong>Productos no disponibles:</strong>
+      Algunos productos han sido eliminados de tu carrito porque ya no están disponibles.
+    </div>
+  </div>
+</div>

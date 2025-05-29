@@ -1,0 +1,89 @@
+<div class="auth-container" *ngIf="!isAuthenticated">
+  <div class="auth-card">
+    <div class="auth-header">
+      <div class="logo">
+        <h1>Cafetería de Ingeniería</h1>
+      </div>
+      <h2>Iniciar Sesión</h2>
+      <p>Bienvenido de vuelta</p>
+    </div>
+
+    <form (ngSubmit)="onSubmit()" #loginForm="ngForm" class="auth-form">
+      <!-- Error Message -->
+      <div *ngIf="error" class="error-message">
+        <i class="fas fa-exclamation-circle"></i>
+        {{ error }}
+        <button type="button" (click)="clearError()" class="error-close">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+
+      <!-- Email Field -->
+      <div class="form-group">
+        <label for="email">Email</label>
+        <div class="input-wrapper">
+          <i class="fas fa-envelope"></i>
+          <input
+            type="email"
+            id="email"
+            name="email"
+            [(ngModel)]="loginData.email"
+            (input)="clearError()"
+            required
+            placeholder="Ingrese su email"
+            class="form-input"
+            [class.error]="error && !loginData.email"
+          />
+        </div>
+      </div>
+
+      <!-- Password Field -->
+      <div class="form-group">
+        <label for="password">Contraseña</label>
+        <div class="input-wrapper">
+          <i class="fas fa-lock"></i>
+          <input
+            [type]="showPassword ? 'text' : 'password'"
+            id="password"
+            name="password"
+            [(ngModel)]="loginData.password"
+            (input)="clearError()"
+            required
+            placeholder="Ingrese su contraseña"
+            class="form-input"
+            [class.error]="error && !loginData.password"
+          />
+          <button
+            type="button"
+            (click)="togglePassword()"
+            class="password-toggle"
+          >
+            <i [class]="showPassword ? 'fas fa-eye-slash' : 'fas fa-eye'"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Forgot Password -->
+      <div class="form-options">
+        <a href="#" class="forgot-password">¿Olvidaste tu contraseña?</a>
+      </div>
+
+      <!-- Submit Button -->
+      <button
+        type="submit"
+        [disabled]="isLoading || !loginForm.valid"
+        class="btn btn-primary btn-full"
+      >
+        <span *ngIf="!isLoading">Iniciar Sesión</span>
+        <span *ngIf="isLoading" class="loading-content">
+          <i class="fas fa-spinner fa-spin"></i>
+          Iniciando sesión...
+        </span>      </button>
+
+      <!-- Register Link -->
+      <div class="auth-footer" *ngIf="!isAuthenticated">
+        <p>¿No tienes una cuenta? <a routerLink="/register">Regístrate aquí</a></p>
+      </div>
+    </form>
+  </div>
+</div>

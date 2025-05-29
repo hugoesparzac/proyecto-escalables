@@ -1,0 +1,18 @@
+<div class="admin-layout">
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <span class="logo"><i class="fas fa-coffee"></i> Admin</span>
+    </div>
+    <nav class="sidebar-nav">
+      <a routerLink="dashboard" routerLinkActive="active"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+      <a routerLink="orders" routerLinkActive="active"><i class="fas fa-receipt"></i> Órdenes</a>
+      <a routerLink="products" routerLinkActive="active"><i class="fas fa-box"></i> Productos</a>
+      <a routerLink="categories" routerLinkActive="active"><i class="fas fa-tags"></i> Categorías</a>
+      <a routerLink="administrators" routerLinkActive="active"><i class="fas fa-user-shield"></i> Administradores</a>
+      <a routerLink="profile" routerLinkActive="active"><i class="fas fa-user"></i> Perfil</a>
+    </nav>
+  </aside>
+  <main class="admin-content">
+    <router-outlet></router-outlet>
+  </main>
+</div>

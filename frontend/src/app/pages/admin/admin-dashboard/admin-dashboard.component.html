@@ -1,0 +1,109 @@
+<div class="profile-container">
+  <div class="profile-header">
+    <div class="container">
+      <div class="header-content">
+        <div class="profile-info">
+          <h1 class="page-title">Panel de Administración</h1>
+          <p class="page-subtitle">Gestiona tu cafetería desde aquí</p>
+        </div>
+        <div class="profile-avatar">
+          <div class="avatar-circle">
+            <i class="fas fa-chart-line"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="profile-content">
+    <div class="container">
+      <!-- Error Message -->
+      <div *ngIf="error" class="error-banner">
+        <i class="fas fa-exclamation-triangle"></i>
+        {{ error }}
+        <button class="btn-close-error" (click)="error = null">×</button>
+      </div>
+
+      <!-- Loading State -->
+      <div *ngIf="isLoading" class="loading-container">
+        <div class="loading-spinner">
+          <i class="fas fa-spinner fa-spin"></i>
+          <p>Cargando estadísticas...</p>
+        </div>
+      </div>
+
+      <!-- Stats Cards -->
+      <div *ngIf="!isLoading && !error && stats" class="table-container">
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-icon">
+              <i class="fas fa-box"></i>
+            </div>
+            <div class="stat-content">
+              <h3>{{ stats.totalProducts }}</h3>
+              <p>Productos</p>
+            </div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-icon">
+              <i class="fas fa-tags"></i>
+            </div>
+            <div class="stat-content">
+              <h3>{{ stats.totalCategories }}</h3>
+              <p>Categorías</p>
+            </div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-icon">
+              <i class="fas fa-receipt"></i>
+            </div>
+            <div class="stat-content">
+              <h3>{{ stats.totalOrders }}</h3>
+              <p>Órdenes Totales</p>
+            </div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-icon">
+              <i class="fas fa-clock"></i>
+            </div>
+            <div class="stat-content">
+              <h3>{{ stats.recentOrders }}</h3>
+              <p>Órdenes Recientes</p>
+            </div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-icon">
+              <i class="fas fa-users"></i>
+            </div>
+            <div class="stat-content">
+              <h3>{{ stats.totalUsers }}</h3>
+              <p>Usuarios</p>
+            </div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-icon">
+              <i class="fas fa-dollar-sign"></i>
+            </div>
+            <div class="stat-content">
+              <h3>${{ stats.revenue | number:'1.2-2' }}</h3>
+              <p>Ingresos</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Error State con botón de reintentar -->
+      <div *ngIf="error && !isLoading" class="empty-container">
+        <button (click)="loadStats()" class="btn btn-primary">
+          <i class="fas fa-refresh"></i>
+          Reintentar
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

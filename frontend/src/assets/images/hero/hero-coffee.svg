@@ -1,0 +1,39 @@
+<svg width="800" height="600" viewBox="0 0 800 600" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background gradient -->
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#BD4B45;stop-opacity:0.1" />
+      <stop offset="100%" style="stop-color:#FFC600;stop-opacity:0.1" />
+    </linearGradient>
+  </defs>
+
+  <rect width="800" height="600" fill="url(#bg)"/>
+
+  <!-- Coffee beans pattern -->
+  <g opacity="0.3">
+    <ellipse cx="150" cy="100" rx="8" ry="12" fill="#BD4B45" transform="rotate(45 150 100)"/>
+    <ellipse cx="300" cy="200" rx="8" ry="12" fill="#BD4B45" transform="rotate(-30 300 200)"/>
+    <ellipse cx="650" cy="150" rx="8" ry="12" fill="#BD4B45" transform="rotate(60 650 150)"/>
+    <ellipse cx="500" cy="350" rx="8" ry="12" fill="#BD4B45" transform="rotate(-45 500 350)"/>
+    <ellipse cx="200" cy="450" rx="8" ry="12" fill="#BD4B45" transform="rotate(30 200 450)"/>
+    <ellipse cx="700" cy="400" rx="8" ry="12" fill="#BD4B45" transform="rotate(-60 700 400)"/>
+  </g>
+
+  <!-- Central coffee cup -->
+  <g transform="translate(350, 250)">
+    <!-- Cup body -->
+    <path d="M0 50h100v80c0 20-10 30-30 30h-40c-20 0-30-10-30-30v-80z" fill="#BD4B45"/>
+    <!-- Cup rim -->
+    <ellipse cx="50" cy="50" rx="50" ry="8" fill="#FFC600"/>
+    <!-- Handle -->
+    <path d="M100 70h20c10 0 18 8 18 18v20c0 10-8 18-18 18h-20" stroke="#BD4B45" stroke-width="4" fill="none"/>
+    <!-- Steam -->
+    <path d="M30 40c0-10 0-20 5-25" stroke="#FFC600" stroke-width="3" fill="none"/>
+    <path d="M50 35c0-15 0-25 5-30" stroke="#FFC600" stroke-width="3" fill="none"/>
+    <path d="M70 40c0-10 0-20 5-25" stroke="#FFC600" stroke-width="3" fill="none"/>
+  </g>
+
+  <!-- Text overlay -->
+  <text x="400" y="450" text-anchor="middle" font-family="Arial, sans-serif" font-size="36" font-weight="bold" fill="#BD4B45">Cafetera de Ingeniería</text>
+  <text x="400" y="480" text-anchor="middle" font-family="Arial, sans-serif" font-size="18" fill="#BD4B45">El mejor café para ingenieros</text>
+</svg>

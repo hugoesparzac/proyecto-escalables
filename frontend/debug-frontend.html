@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Debug Frontend Data Loading</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .section { margin-bottom: 30px; padding: 20px; border: 1px solid #ccc; border-radius: 5px; }
+        .success { background-color: #d4edda; border-color: #c3e6cb; color: #155724; }
+        .error { background-color: #f8d7da; border-color: #f5c6cb; color: #721c24; }
+        .info { background-color: #d1ecf1; border-color: #bee5eb; color: #0c5460; }
+        pre { background-color: #f8f9fa; padding: 10px; border-radius: 3px; overflow-x: auto; }
+        button { background-color: #007bff; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; margin: 5px; }
+        button:hover { background-color: #0056b3; }
+    </style>
+</head>
+<body>
+    <h1>🔍 Debug Frontend Data Loading</h1>
+
+    <div class="section info">
+        <h2>📊 API Tests</h2>
+        <button onclick="testProductsAPI()">Test Products API</button>
+        <button onclick="testCategoriesAPI()">Test Categories API</button>
+        <button onclick="testAngularServices()">Test Angular Services</button>
+        <div id="api-results"></div>
+    </div>
+
+    <div class="section info">
+        <h2>🧩 Frontend Integration Test</h2>
+        <button onclick="testFrontendIntegration()">Test Frontend Data Flow</button>
+        <div id="frontend-results"></div>
+    </div>
+
+    <script>
+        async function testProductsAPI() {
+            const resultsDiv = document.getElementById('api-results');
+            try {
+                const response = await fetch('http://localhost:3002/api/products');
+                const data = await response.json();
+
+                resultsDiv.innerHTML = `
+                    <div class="success">
+                        <h3>✅ Products API Response</h3>
+                        <p><strong>Success:</strong> ${data.success}</p>
+                        <p><strong>Products Count:</strong> ${data.data.products.length}</p>
+                        <p><strong>First Product:</strong> ${data.data.products[0]?.nombre_producto}</p>
+                        <details>
+                            <summary>View Full Response</summary>
+                            <pre>${JSON.stringify(data, null, 2)}</pre>
+                        </details>
+                    </div>
+                `;
+            } catch (error) {
+                resultsDiv.innerHTML = `
+                    <div class="error">
+                        <h3>❌ Products API Error</h3>
+                        <p>${error.message}</p>
+                    </div>
+                `;
+            }
+        }
+
+        async function testCategoriesAPI() {
+            const resultsDiv = document.getElementById('api-results');
+            try {
+                const response = await fetch('http://localhost:3002/api/categories');
+                const data = await response.json();
+
+                resultsDiv.innerHTML = `
+                    <div class="success">
+                        <h3>✅ Categories API Response</h3>
+                        <p><strong>Success:</strong> ${data.success}</p>
+                        <p><strong>Categories Count:</strong> ${data.categories.length}</p>
+                        <p><strong>First Category:</strong> ${data.categories[0]?.nombre_categoria}</p>
+                        <details>
+                            <summary>View Full Response</summary>
+                            <pre>${JSON.stringify(data, null, 2)}</pre>
+                        </details>
+                    </div>
+                `;
+            } catch (error) {
+                resultsDiv.innerHTML = `
+                    <div class="error">
+                        <h3>❌ Categories API Error</h3>
+                        <p>${error.message}</p>
+                    </div>
+                `;
+            }
+        }
+
+        async function testAngularServices() {
+            const resultsDiv = document.getElementById('api-results');
+            resultsDiv.innerHTML = `
+                <div class="info">
+                    <h3>🔄 Testing Angular Services</h3>
+                    <p>This test should be run from the Angular application console.</p>
+                    <p>Open the Angular app at <a href="http://localhost:4202" target="_blank">http://localhost:4202</a></p>
+                    <p>Then open browser DevTools (F12) and run:</p>
+                    <pre>
+// Test the ProductService directly
+angular.ng.getComponent(document.querySelector('app-root')).productService.getProducts().subscribe(
+    data => console.log('Products:', data),
+    error => console.error('Error:', error)
+);
+                    </pre>
+                </div>
+            `;
+        }
+
+        async function testFrontendIntegration() {
+            const resultsDiv = document.getElementById('frontend-results');
+
+            resultsDiv.innerHTML = `
+                <div class="info">
+                    <h3>🔄 Testing Frontend Integration...</h3>
+                    <p>Opening Angular application in new tab...</p>
+                </div>
+            `;
+
+            // Open Angular app in new tab
+            window.open('http://localhost:4202', '_blank');
+
+            // Provide debugging instructions
+            setTimeout(() => {
+                resultsDiv.innerHTML = `
+                    <div class="info">
+                        <h3>🧪 Frontend Integration Test Instructions</h3>
+                        <ol>
+                            <li>The Angular app should have opened in a new tab</li>
+                            <li>Check if products and categories are visible on the homepage</li>
+                            <li>Open browser DevTools (F12) in the Angular tab</li>
+                            <li>Check the Console for any errors</li>
+                            <li>Look for network requests to the API in the Network tab</li>
+                        </ol>
+
+                        <h4>🔍 Common Issues to Check:</h4>
+                        <ul>
+                            <li><strong>CORS Errors:</strong> Should be fixed with our backend configuration</li>
+                            <li><strong>404 Errors:</strong> Check if API endpoints are correct</li>
+                            <li><strong>Data Structure Errors:</strong> We updated the interfaces to match backend response</li>
+                            <li><strong>Component Loading:</strong> Check if components are calling the right service methods</li>
+                        </ul>
+
+                        <h4>🐛 Debug Commands for Angular Console:</h4>
+                        <pre>
+// Check if ProductService is working
+ng.getComponent(document.querySelector('app-home')).productService.getProducts().subscribe(console.log);
+
+// Check if data is being loaded in components
+ng.getComponent(document.querySelector('app-home')).featuredProducts;
+ng.getComponent(document.querySelector('app-home')).categories;
+                        </pre>
+                    </div>
+                `;
+            }, 1000);
+        }
+
+        // Auto-run basic tests on page load
+        window.addEventListener('load', () => {
+            console.log('🚀 Debug page loaded. Running initial tests...');
+            testProductsAPI();
+        });
+    </script>
+</body>
+</html>

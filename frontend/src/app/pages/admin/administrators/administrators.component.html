@@ -1,0 +1,201 @@
+<div class="profile-container">
+  <div class="profile-header">
+    <div class="container">
+      <div class="header-content">
+        <div class="profile-info">
+          <h1 class="page-title">Administradores</h1>
+          <p class="page-subtitle">Gestiona los administradores del sistema</p>
+        </div>
+        <div class="profile-avatar">
+          <div class="avatar-circle">
+            <i class="fas fa-user-shield"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="profile-content">
+    <div class="container">
+      <!-- Error Message -->
+      <div *ngIf="error" class="error-banner">
+        <i class="fas fa-exclamation-triangle"></i>
+        {{ error }}
+        <button class="btn-close-error" (click)="error = null">×</button>
+      </div>      <!-- Loading State -->
+      <div *ngIf="isLoading" class="loading-container">
+        <div class="loading-spinner">
+          <i class="fas fa-spinner fa-spin"></i>
+          <p>Cargando administradores...</p>
+        </div>
+      </div>      <!-- Administrators Table -->
+      <div class="table-header-actions">
+        <button class="btn btn-primary" (click)="openCreateModal()">
+          <i class="fas fa-plus"></i> Agregar Administrador
+        </button>
+      </div>
+      <div *ngIf="!isLoading" class="table-container">
+        <table class="table" *ngIf="administrators.length > 0; else emptyState">
+          <thead>
+            <tr>
+              <th>Nombre</th>
+              <th>Correo</th>
+              <th>Fecha de Registro</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let admin of administrators">
+              <td>
+                <div class="admin-info">
+                  <strong>{{ admin.nombre }}</strong>
+                  <small class="admin-id">ID: {{ admin.id_usuario }}</small>
+                </div>
+              </td>
+              <td>{{ admin.correo }}</td>
+              <td>{{ formatDate(admin.createdAt) }}</td>
+              <td>
+                <div class="actions">
+                  <button class="btn-action btn-edit" (click)="openEditModal(admin)" title="Editar administrador">
+                    <i class="fas fa-edit"></i>
+                  </button>
+                  <button class="btn-action btn-delete" (click)="openDeleteModal(admin)" title="Eliminar administrador">
+                    <i class="fas fa-trash"></i>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <ng-template #emptyState>
+          <div class="empty-container">
+            <i class="fas fa-users-cog fa-3x"></i>
+            <h3 class="empty-message">No hay administradores</h3>
+            <p>Comienza agregando el primer administrador del sistema.</p>
+            <button class="btn btn-primary" (click)="openCreateModal()">
+              <i class="fas fa-plus"></i>
+              Agregar Primer Administrador
+            </button>
+          </div>
+        </ng-template>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modals para crear/editar (solo nombre, correo, contraseña) -->
+  <div *ngIf="showCreateModal" class="modal-overlay" (click)="closeModals()">
+    <div class="modal-container" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2 class="modal-title">Agregar Nuevo Administrador</h2>
+        <button class="btn-close" (click)="closeModals()">×</button>
+      </div>
+      <div class="modal-body">
+        <form (ngSubmit)="createAdministrator()" #createForm="ngForm">
+          <div class="form-group">
+            <label for="createNombre">Nombre Completo *</label>
+            <input type="text" id="createNombre" class="form-control" [(ngModel)]="adminForm.nombre" name="nombre" required placeholder="Ingrese el nombre completo" />
+          </div>
+          <div class="form-group">
+            <label for="createCorreo">Correo Electrónico *</label>
+            <input type="email" id="createCorreo" class="form-control" [(ngModel)]="adminForm.correo" name="correo" required placeholder="admin@ejemplo.com" />
+            <small *ngIf="adminForm.correo && !isValidEmail(adminForm.correo)" class="text-danger">Por favor ingrese un correo válido</small>
+          </div>
+          <div class="form-group">
+            <label for="createPassword">Contraseña *</label>
+            <input type="password" id="createPassword" class="form-control" [(ngModel)]="adminForm.password" name="password" required placeholder="Ingrese una contraseña segura" (input)="validatePassword(adminForm.password)" />
+            <div class="password-requirements" *ngIf="adminForm.password">
+              <small class="req-title">Requisitos de contraseña:</small>
+              <div class="requirements-list">
+                <small class="requirement" [ngClass]="passwordRequirements.minLength ? 'valid' : 'invalid'">
+                  <i [class]="passwordRequirements.minLength ? 'fas fa-check' : 'fas fa-times'"></i>
+                  Mínimo 8 caracteres
+                </small>
+                <small class="requirement" [ngClass]="passwordRequirements.hasUpper ? 'valid' : 'invalid'">
+                  <i [class]="passwordRequirements.hasUpper ? 'fas fa-check' : 'fas fa-times'"></i>
+                  Una mayúscula
+                </small>
+                <small class="requirement" [ngClass]="passwordRequirements.hasLower ? 'valid' : 'invalid'">
+                  <i [class]="passwordRequirements.hasLower ? 'fas fa-check' : 'fas fa-times'"></i>
+                  Una minúscula
+                </small>
+                <small class="requirement" [ngClass]="passwordRequirements.hasNumber ? 'valid' : 'invalid'">
+                  <i [class]="passwordRequirements.hasNumber ? 'fas fa-check' : 'fas fa-times'"></i>
+                  Un número
+                </small>
+                <small class="requirement" [ngClass]="passwordRequirements.hasSpecial ? 'valid' : 'invalid'">
+                  <i [class]="passwordRequirements.hasSpecial ? 'fas fa-check' : 'fas fa-times'"></i>
+                  Un carácter especial
+                </small>
+              </div>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="createConfirmPassword">Confirmar Contraseña *</label>
+            <input type="password" id="createConfirmPassword" class="form-control" [(ngModel)]="adminForm.confirmPassword" name="confirmPassword" required placeholder="Confirme la contraseña" />
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" (click)="closeModals()">Cancelar</button>
+            <button type="submit" class="btn btn-primary" [disabled]="!isFormValid || isCreating">
+              <i class="fas fa-save" *ngIf="!isCreating"></i>
+              {{ isCreating ? 'Guardando...' : 'Guardar' }}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="showEditModal" class="modal-overlay" (click)="closeModals()">
+    <div class="modal-container" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2 class="modal-title">Editar Administrador</h2>
+        <button class="btn-close" (click)="closeModals()">×</button>
+      </div>
+      <div class="modal-body">
+        <form (ngSubmit)="updateAdministrator()" #editForm="ngForm">
+          <div class="form-group">
+            <label for="editNombre">Nombre Completo *</label>
+            <input type="text" id="editNombre" class="form-control" [(ngModel)]="adminForm.nombre" name="nombre" required />
+          </div>
+          <div class="form-group">
+            <label for="editCorreo">Correo Electrónico *</label>
+            <input type="email" id="editCorreo" class="form-control" [(ngModel)]="adminForm.correo" name="correo" required />
+          </div>
+          <div class="form-group">
+            <label for="editPassword">Nueva Contraseña (opcional)</label>
+            <input type="password" id="editPassword" class="form-control" [(ngModel)]="adminForm.password" name="password" placeholder="Dejar vacío para no cambiar" (input)="validatePassword(adminForm.password)" />
+            <small class="text-muted">Solo complete si desea cambiar la contraseña</small>
+          </div>
+          <div class="form-group" *ngIf="adminForm.password">
+            <label for="editConfirmPassword">Confirmar Nueva Contraseña</label>
+            <input type="password" id="editConfirmPassword" class="form-control" [(ngModel)]="adminForm.confirmPassword" name="confirmPassword" placeholder="Confirme la nueva contraseña" />
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" (click)="closeModals()">Cancelar</button>
+            <button type="submit" class="btn btn-primary" [disabled]="!isFormValid">
+              <i class="fas fa-save"></i> Guardar Cambios
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="showDeleteModal" class="modal-overlay" (click)="closeModals()">
+    <div class="modal-container" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2 class="modal-title">Eliminar Administrador</h2>
+        <button class="btn-close" (click)="closeModals()">×</button>
+      </div>
+      <div class="modal-body">
+        <p>¿Estás seguro de que deseas eliminar este administrador?</p>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" (click)="closeModals()">Cancelar</button>
+          <button type="button" class="btn btn-danger" (click)="deleteAdministrator()">
+            <i class="fas fa-trash"></i> Eliminar
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,13 @@
+/* Main application layout styles */
+:host {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+main {
+  flex: 1;
+  /* Remove min-height calc since we're using flexbox */
+}
+
+/* Remove the fixed positioning from here since it's handled in header component */

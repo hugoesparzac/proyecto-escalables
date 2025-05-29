@@ -1,0 +1,22 @@
+<svg width="400" height="400" viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="400" height="400" fill="#f8f9fa"/>
+
+  <!-- Coffee cup silhouette -->
+  <g transform="translate(200, 200)">
+    <!-- Cup body -->
+    <path d="M-60 20h120v100c0 30-20 50-50 50h-20c-30 0-50-20-50-50v-100z" fill="#BD4B45"/>
+    <!-- Cup rim -->
+    <ellipse cx="0" cy="20" rx="60" ry="10" fill="#FFC600"/>
+    <!-- Handle -->
+    <path d="M60 40h25c15 0 25 10 25 25v30c0 15-10 25-25 25h-25" stroke="#BD4B45" stroke-width="6" fill="none"/>
+    <!-- Steam lines -->
+    <path d="M-30 10c0-15 0-30 8-35" stroke="#FFC600" stroke-width="4" fill="none"/>
+    <path d="M0 5c0-20 0-35 8-40" stroke="#FFC600" stroke-width="4" fill="none"/>
+    <path d="M30 10c0-15 0-30 8-35" stroke="#FFC600" stroke-width="4" fill="none"/>
+  </g>
+
+  <!-- Text -->
+  <text x="200" y="350" text-anchor="middle" font-family="Arial, sans-serif" font-size="18" fill="#BD4B45">Producto</text>
+  <text x="200" y="375" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" fill="#6c757d">Imagen no disponible</text>
+</svg>

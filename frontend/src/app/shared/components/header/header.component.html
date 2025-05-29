@@ -1,0 +1,100 @@
+<header class="header">
+  <div class="container">
+    <div class="nav-wrapper">
+      <!-- Logo -->
+      <div class="logo">
+        <a routerLink="/" class="logo-link">
+          <img src="assets/images/logo.png" alt="Logo" class="logo-image"
+               onerror="this.style.display='none'; this.nextElementSibling.style.display='inline';">
+          <i class="fas fa-coffee" style="display: none;"></i>
+          <span>Cafetería de Ingeniería</span>
+        </a>
+      </div>
+
+      <!-- Navigation Menu -->
+      <nav class="nav-menu">
+        <ul class="nav-list">
+          <!-- Removed Menú, Nosotros, and Contacto as requested -->
+        </ul>
+      </nav>
+
+      <!-- Actions -->
+      <div class="nav-actions">
+        <!-- User Icons (Only for authenticated non-admin users) -->
+        <div class="user-icons desktop-only" *ngIf="isAuthenticated && !isAdmin">
+          <!-- Menu Icon -->
+          <a routerLink="/menu" class="icon-link">
+            <i class="fas fa-utensils"></i>
+          </a>
+
+          <!-- Notifications Icon -->
+          <a routerLink="/notifications" class="icon-link">
+            <i class="fas fa-bell"></i>
+            <span class="notification-badge" *ngIf="notificationCount > 0">{{ notificationCount }}</span>
+          </a>
+
+          <!-- Favorites Icon -->
+          <a routerLink="/favorites" class="icon-link">
+            <i class="fas fa-heart"></i>
+          </a>
+
+          <!-- Cart Icon -->
+          <a routerLink="/cart" class="icon-link">
+            <i class="fas fa-shopping-cart"></i>
+            <span class="cart-count" *ngIf="cartItemCount > 0">{{ cartItemCount }}</span>
+          </a>
+
+          <!-- Profile Icon -->
+          <a routerLink="/profile" class="icon-link">
+            <i class="fas fa-user-circle"></i>
+          </a>        </div>
+
+        <!-- Auth Buttons - Desktop Only -->
+        <div class="auth-buttons desktop-only" *ngIf="!isAuthenticated">
+          <a routerLink="/login" class="btn btn-outline">Iniciar Sesión</a>
+          <a routerLink="/register" class="btn btn-primary">Registrarse</a>
+        </div>
+
+        <!-- Mobile Menu Toggle -->
+        <button class="mobile-menu-toggle" (click)="toggleMobileMenu()">
+          <i class="fas" [ngClass]="{'fa-bars': !isMobileMenuOpen, 'fa-times': isMobileMenuOpen}"></i>
+        </button></div>
+    </div>
+  </div>
+  <!-- Mobile Menu Dropdown -->
+  <div class="mobile-menu" [ngClass]="{'active': isMobileMenuOpen}">
+    <div class="container">
+      <div class="mobile-menu-items">
+        <!-- Auth links when not authenticated -->
+        <ng-container *ngIf="!isAuthenticated">
+          <a routerLink="/login" class="mobile-menu-item" (click)="toggleMobileMenu()">
+            <i class="fas fa-sign-in-alt"></i> Iniciar Sesión
+          </a>
+          <a routerLink="/register" class="mobile-menu-item" (click)="toggleMobileMenu()">
+            <i class="fas fa-user-plus"></i> Registrarse
+          </a>
+        </ng-container>
+        <!-- User links when authenticated -->
+        <ng-container *ngIf="isAuthenticated && !isAdmin">
+          <a routerLink="/menu" class="mobile-menu-item" (click)="toggleMobileMenu()">
+            <i class="fas fa-utensils"></i> Menú
+          </a>
+          <a routerLink="/notifications" class="mobile-menu-item" (click)="toggleMobileMenu()">
+            <i class="fas fa-bell"></i> Notificaciones
+            <span class="badge" *ngIf="notificationCount > 0">{{ notificationCount }}</span>
+          </a>
+          <a routerLink="/favorites" class="mobile-menu-item" (click)="toggleMobileMenu()">
+            <i class="fas fa-heart"></i> Favoritos
+          </a>
+          <a routerLink="/cart" class="mobile-menu-item" (click)="toggleMobileMenu()">
+            <i class="fas fa-shopping-cart"></i> Carrito
+            <span class="badge" *ngIf="cartItemCount > 0">{{ cartItemCount }}</span>
+          </a>
+          <a routerLink="/profile" class="mobile-menu-item" (click)="toggleMobileMenu()">
+            <i class="fas fa-user-circle"></i> Mi Perfil
+          </a>
+        </ng-container>
+      </div>
+    </div>
+  </div>
+</header>

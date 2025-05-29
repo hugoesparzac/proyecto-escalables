@@ -1,0 +1,103 @@
+<div class="product-detail-container">
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="loading-container">
+    <div class="loading-spinner"></div>
+    <p>Cargando producto...</p>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="error && !isLoading" class="error-container">
+    <i class="fas fa-exclamation-triangle"></i>
+    <h2>{{ error }}</h2>
+    <div class="error-actions">
+      <button (click)="goBack()" class="btn btn-secondary">Volver</button>
+      <a routerLink="/menu" class="btn btn-primary">Ver Menú</a>
+    </div>
+  </div>
+
+  <!-- Product Detail -->
+  <div *ngIf="product && !isLoading && !error" class="product-detail">
+    <div class="container">
+      <!-- Breadcrumb -->      <nav class="breadcrumb">
+        <a routerLink="/">Inicio</a>
+        <i class="fas fa-chevron-right"></i>
+        <a routerLink="/menu">Menú</a>
+        <i class="fas fa-chevron-right"></i>
+        <span *ngIf="category">{{ category.nombre_categoria }}</span>
+        <i class="fas fa-chevron-right" *ngIf="category"></i>
+        <span class="current">{{ product.nombre_producto }}</span>
+      </nav>
+
+      <!-- Back Button -->
+      <button (click)="goBack()" class="back-button">
+        <i class="fas fa-arrow-left"></i>
+        Volver
+      </button>      <!-- Product Main Content -->
+      <div class="product-main">
+        <div class="product-image-section">
+          <div class="product-image-main">
+            <img [src]="product.url_imagen || 'assets/images/products/default-product.svg'"
+                 [alt]="product.nombre_producto" />
+          </div>
+        </div>
+
+        <div class="product-info-section">
+          <h1 class="product-title">{{ product.nombre_producto }}</h1>
+
+          <div class="product-top-section">
+            <div class="product-price">
+              <span class="current-price">${{ product.precio.toFixed(2) }}</span>
+            </div>            <button *ngIf="isAuthenticated" (click)="toggleFavorite()" class="favorite-btn" [class.favorite-active]="isFavorite" [disabled]="togglingFavorite">
+              <i class="fas" [ngClass]="{'fa-heart': isFavorite, 'far fa-heart': !isFavorite}"></i>
+              {{ isFavorite ? 'Quitar de favoritos' : 'Agregar a favoritos' }}
+            </button>
+          </div>
+
+          <div class="product-description">
+            <h3>Descripción</h3>
+            <p>{{ product.descripcion }}</p>            <div class="product-specs">
+              <div class="spec-item" *ngIf="product.calorias !== undefined">
+                <i class="fas fa-fire"></i>
+                <span><strong>Calorías:</strong> {{ product.calorias }} kcal</span>
+              </div>
+              <div class="spec-item" *ngIf="product.cantidad_stock !== undefined">
+                <i class="fas fa-cubes"></i>
+                <span><strong>Stock disponible:</strong> {{ product.cantidad_stock }} unidades</span>
+              </div>
+              <div class="spec-item" *ngIf="product.popularidad !== undefined">
+                <i class="fas fa-star"></i>
+                <span><strong>Popularidad:</strong> {{ product.popularidad }} pts</span>
+              </div>
+              <div class="spec-item" *ngIf="product.disponible !== undefined">
+                <i class="fas" [ngClass]="{'fa-check-circle': product.disponible, 'fa-times-circle': !product.disponible}"></i>
+                <span><strong>Estado:</strong> {{ product.disponible ? 'Disponible' : 'No disponible' }}</span>
+              </div>
+            </div>
+          </div><!-- Quantity and Add to Cart -->
+          <div class="product-actions">
+            <div class="quantity-selector">
+              <label>Cantidad:</label>
+              <div class="quantity-controls">
+                <button (click)="decreaseQuantity()" [disabled]="quantity <= 1 || !isAuthenticated" class="qty-btn">
+                  <i class="fas fa-minus"></i>
+                </button>
+                <span class="quantity">{{ quantity }}</span>
+                <button (click)="increaseQuantity()" [disabled]="!isAuthenticated" class="qty-btn">
+                  <i class="fas fa-plus"></i>
+                </button>
+              </div>
+            </div>            <button (click)="addToCart()" [disabled]="!isAuthenticated" class="btn btn-primary btn-large"
+                    [class.disabled]="!isAuthenticated">
+              <i class="fas fa-shopping-cart"></i>
+              Agregar al Carrito - ${{ (product.precio * quantity).toFixed(2) }}
+            </button>
+
+            <div *ngIf="!isAuthenticated" class="login-message">
+              <i class="fas fa-info-circle"></i>
+              <span>Inicia sesión para agregar productos al carrito</span>
+            </div>
+          </div>
+      </div>
+    </div>
+  </div>
+</div>

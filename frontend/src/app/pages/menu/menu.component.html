@@ -1,0 +1,120 @@
+<div class="menu-container">
+  <div class="container">
+    <!-- Page Header -->
+    <div class="page-header">
+      <h1 class="page-title">Nuestro Menú</h1>
+      <p class="page-subtitle">Descubre todos nuestros deliciosos productos</p>
+    </div>
+
+    <!-- Loading State -->
+    <div *ngIf="isLoading" class="loading-container">
+      <div class="loading-spinner"></div>
+      <p>Cargando menú...</p>
+    </div>
+
+    <!-- Error State -->
+    <div *ngIf="error && !isLoading" class="error-container">
+      <p class="error-message">{{ error }}</p>
+      <button (click)="loadMenuData()" class="btn btn-primary">Reintentar</button>
+    </div>
+
+    <!-- Menu Content -->
+    <div *ngIf="!isLoading && !error" class="menu-content">
+      <!-- Filters and Search -->
+      <div class="filters-section">
+        <div class="search-container">
+          <div class="search-input-wrapper">
+            <i class="fas fa-search"></i>
+            <input
+              type="text"
+              [(ngModel)]="searchTerm"
+              (input)="onSearchChange()"
+              placeholder="Buscar productos..."
+              class="search-input"
+            />
+          </div>
+        </div>
+
+        <div class="filters-row">          <!-- Category Filter -->
+          <div class="filter-group">
+            <label>Categoría:</label>
+            <select
+              [(ngModel)]="selectedCategoryId"
+              (ngModelChange)="filterProducts()"
+              class="filter-select"
+            >
+              <option value="">Todas las categorías</option>
+              <option *ngFor="let category of categories" [value]="category.id_categoria">
+                {{ category.nombre_categoria }}
+              </option>
+            </select>
+          </div>
+
+          <!-- Sort Options -->
+          <div class="filter-group">
+            <label>Ordenar por:</label>
+            <select [(ngModel)]="sortBy" (change)="onSortChange()" class="filter-select">
+              <option value="name">Nombre</option>
+              <option value="price">Precio</option>
+              <option value="newest">Más recientes</option>
+            </select>
+          </div>
+
+          <div class="filter-group">
+            <label>Orden:</label>
+            <select [(ngModel)]="sortOrder" (change)="onSortChange()" class="filter-select">
+              <option value="asc">Ascendente</option>
+              <option value="desc">Descendente</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Results Info -->        <div class="results-info">
+          <p>
+            Mostrando {{ filteredProducts.length }} de {{ products.length }} productos
+            <span *ngIf="selectedCategoryId && selectedCategoryId !== ''"> en "{{ getCategoryName(selectedCategoryId) }}"</span>
+            <span *ngIf="searchTerm"> para "{{ searchTerm }}"</span>
+          </p>
+        </div>
+      </div>
+
+      <!-- Products Grid -->
+      <div class="products-section">
+        <div *ngIf="filteredProducts.length === 0" class="no-products">
+          <i class="fas fa-search"></i>
+          <h3>No se encontraron productos</h3>
+          <p>Intenta cambiar los filtros o el término de búsqueda</p>          <button (click)="selectedCategoryId = ''; searchTerm = ''; filterProducts()" class="btn btn-primary">
+            Limpiar Filtros
+          </button>
+        </div>
+
+        <div *ngIf="filteredProducts.length > 0" class="products-grid">          <div *ngFor="let product of filteredProducts" class="product-card">            <div class="product-image">
+              <img [src]="product.url_imagen || 'assets/images/products/default-product.svg'"
+                   [alt]="product.nombre_producto" />              <div class="product-overlay">
+                <a [routerLink]="['/product', product._id]" class="btn btn-secondary btn-sm">
+                  <i class="fas fa-eye"></i>
+                  Ver Detalles
+                </a>
+              </div>
+            </div>            <div class="product-info">
+              <div class="product-category">
+                {{ getCategoryName(product.id_categoria) }}
+              </div>
+              <h3 class="product-name">{{ product.nombre_producto }}</h3>
+              <p class="product-description">{{ product.descripcion }}</p>
+
+              <div class="product-footer">
+                <span class="product-price">${{ product.precio }}</span>                <div class="product-actions">
+                </div>
+              </div>
+              <div *ngIf="!isAuthenticated" class="login-message-small">
+                <i class="fas fa-info-circle"></i>
+                <span>Inicia sesión para comprar</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

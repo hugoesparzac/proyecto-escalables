@@ -1,0 +1,129 @@
+<div class="auth-container" *ngIf="!isAuthenticated">
+  <div class="auth-card">
+    <div class="auth-header">
+      <div class="logo">
+        <h1>Cafetería de Ingeniería</h1>
+      </div>
+      <h2>Crear Cuenta</h2>
+      <p>Únete a nuestra comunidad cafetera</p>
+    </div>
+
+    <form (ngSubmit)="onSubmit()" #registerForm="ngForm" class="auth-form">
+      <!-- Error Message -->
+      <div *ngIf="error" class="error-message">
+        <i class="fas fa-exclamation-circle"></i>
+        {{ error }}
+        <button type="button" (click)="clearError()" class="error-close">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>      <!-- Name Field -->
+      <div class="form-group">
+        <label for="name">Nombre</label>
+        <div class="input-wrapper">
+          <i class="fas fa-user"></i>
+          <input
+            type="text"
+            id="name"
+            name="name"
+            [(ngModel)]="registerData.name"
+            (input)="clearError()"
+            required            placeholder="Ingrese su nombre completo"
+            class="form-input"
+            [class.error]="error && !registerData.name"
+          />
+        </div>
+      </div>
+
+      <!-- Email Field -->
+      <div class="form-group">
+        <label for="email">Email</label>
+        <div class="input-wrapper">
+          <i class="fas fa-envelope"></i>
+          <input
+            type="email"
+            id="email"
+            name="email"
+            [(ngModel)]="registerData.email"
+            (input)="clearError()"
+            required
+            placeholder="Ingrese su email"
+            class="form-input"
+            [class.error]="error && !registerData.email"
+          />
+        </div>
+      </div>
+
+      <!-- Password Field -->
+      <div class="form-group">
+        <label for="password">Contraseña</label>
+        <div class="input-wrapper">
+          <i class="fas fa-lock"></i>
+          <input
+            [type]="showPassword ? 'text' : 'password'"
+            id="password"
+            name="password"
+            [(ngModel)]="registerData.password"
+            (input)="clearError()"
+            required
+            placeholder="Cree una contraseña segura"
+            class="form-input"
+            [class.error]="error && !registerData.password"
+          />
+          <button
+            type="button"
+            (click)="togglePassword()"
+            class="password-toggle"
+          >
+            <i [class]="showPassword ? 'fas fa-eye-slash' : 'fas fa-eye'"></i>
+          </button>
+        </div>
+        <div class="password-hint">
+          <small>Mínimo 6 caracteres</small>
+        </div>
+      </div>
+
+      <!-- Confirm Password Field -->
+      <div class="form-group">
+        <label for="confirmPassword">Confirmar Contraseña</label>
+        <div class="input-wrapper">
+          <i class="fas fa-lock"></i>
+          <input
+            [type]="showConfirmPassword ? 'text' : 'password'"
+            id="confirmPassword"
+            name="confirmPassword"
+            [(ngModel)]="registerData.confirmPassword"
+            (input)="clearError()"
+            required
+            placeholder="Confirme su contraseña"
+            class="form-input"
+            [class.error]="error && !registerData.confirmPassword"
+          />
+          <button
+            type="button"
+            (click)="toggleConfirmPassword()"
+            class="password-toggle"
+          >
+            <i [class]="showConfirmPassword ? 'fas fa-eye-slash' : 'fas fa-eye'"></i>
+          </button>
+        </div>      </div>
+
+      <!-- Submit Button -->
+      <button
+        type="submit"
+        [disabled]="isLoading || !registerForm.valid"
+        class="btn btn-primary btn-full"
+      >
+        <span *ngIf="!isLoading">Crear Cuenta</span>
+        <span *ngIf="isLoading" class="loading-content">
+          <i class="fas fa-spinner fa-spin"></i>
+          Creando cuenta...
+        </span>
+      </button>
+
+      <!-- Login Link -->
+      <div class="auth-footer" *ngIf="!isAuthenticated">
+        <p>¿Ya tienes una cuenta? <a routerLink="/login">Inicia sesión aquí</a></p>
+      </div>
+    </form>
+  </div>
+</div>

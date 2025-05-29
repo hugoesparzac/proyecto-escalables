@@ -1,0 +1,295 @@
+<div class="admin-container">
+  <!-- Header -->
+  <div class="admin-header">
+    <div class="container">
+      <div class="header-content">
+        <div>
+          <h1 class="page-title">Gestión de Categorías</h1>
+          <p class="page-subtitle">Administra las categorías de productos</p>
+        </div>
+        <div class="header-actions">
+          <a routerLink="/admin" class="btn btn-outline">
+            <i class="fas fa-arrow-left"></i>
+            Volver al Panel
+          </a>
+          <button (click)="openCreateModal()" class="btn btn-primary">
+            <i class="fas fa-plus"></i>
+            Nueva Categoría
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Error Message -->
+  <div *ngIf="error" class="error-container">
+    <div class="error-message">
+      <i class="fas fa-exclamation-triangle"></i>
+      <span>{{ error }}</span>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="loading-container">
+    <div class="loading-spinner"></div>
+    <p>Cargando categorías...</p>
+  </div>
+
+  <!-- Categories Table -->
+  <div *ngIf="!isLoading" class="admin-content">
+    <div class="container">
+      <div class="table-container">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>Imagen</th>
+              <th>Nombre</th>
+              <th>Descripción</th>
+              <th>Estado</th>
+              <th>Productos</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let category of categories">
+              <td>
+                <div class="category-image">
+                  <img
+                    *ngIf="category.imagen_url"
+                    [src]="category.imagen_url"
+                    [alt]="category.nombre_categoria"
+                    onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                  <div class="image-placeholder"
+                       [style.display]="category.imagen_url ? 'none' : 'flex'">
+                    <i class="fas fa-tags"></i>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <div class="category-name">{{ category.nombre_categoria }}</div>
+              </td>
+              <td>
+                <div class="category-description">
+                  {{ category.descripcion || 'Sin descripción' }}
+                </div>
+              </td>
+              <td>
+                <span class="status-badge"
+                      [ngClass]="{'active': category.activa, 'inactive': !category.activa}">
+                  {{ category.activa ? 'Activa' : 'Inactiva' }}
+                </span>
+              </td>
+              <td>
+                <span class="product-count">{{ category.productCount || 0 }}</span>
+              </td>
+              <td>
+                <div class="action-buttons">
+                  <button (click)="openEditModal(category)" class="btn btn-sm btn-outline" title="Editar">
+                    <i class="fas fa-edit"></i>
+                  </button>
+                  <button
+                    (click)="toggleCategoryStatus(category)"
+                    class="btn btn-sm"
+                    [ngClass]="category.activa ? 'btn-warning' : 'btn-success'"
+                    [title]="category.activa ? 'Desactivar' : 'Activar'">
+                    <i class="fas" [ngClass]="category.activa ? 'fa-eye-slash' : 'fa-eye'"></i>
+                  </button>
+                  <button
+                    (click)="openDeleteModal(category)"
+                    class="btn btn-sm btn-danger"
+                    title="Eliminar"
+                    [disabled]="(category.productCount || 0) > 0">
+                    <i class="fas fa-trash"></i>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div *ngIf="categories.length === 0" class="empty-state">
+          <i class="fas fa-tags"></i>
+          <h3>No hay categorías</h3>
+          <p>Comienza creando tu primera categoría</p>
+          <button (click)="openCreateModal()" class="btn btn-primary">
+            <i class="fas fa-plus"></i>
+            Crear Categoría
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Create Category Modal -->
+<div class="modal" [ngClass]="{'active': showCreateModal}">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2>Nueva Categoría</h2>
+      <button (click)="closeModals()" class="modal-close">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    <div class="modal-body">
+      <form (ngSubmit)="createCategory()" #createForm="ngForm">
+        <div class="form-group">
+          <label for="create-name">Nombre de la categoría *</label>
+          <input
+            type="text"
+            id="create-name"
+            [(ngModel)]="categoryForm.nombre_categoria"
+            name="nombre_categoria"
+            required
+            maxlength="30"
+            class="form-control">
+        </div>
+
+        <div class="form-group">
+          <label for="create-description">Descripción</label>
+          <textarea
+            id="create-description"
+            [(ngModel)]="categoryForm.descripcion"
+            name="descripcion"
+            maxlength="200"
+            class="form-control"
+            rows="3"></textarea>
+        </div>
+
+        <div class="form-group">
+          <label for="create-image">URL de imagen</label>
+          <input
+            type="url"
+            id="create-image"
+            [(ngModel)]="categoryForm.imagen_url"
+            name="imagen_url"
+            class="form-control">
+        </div>
+
+        <div class="form-group">
+          <label class="checkbox-label">
+            <input
+              type="checkbox"
+              [(ngModel)]="categoryForm.activa"
+              name="activa">
+            <span class="checkmark"></span>
+            Categoría activa
+          </label>
+        </div>
+
+        <div class="modal-actions">
+          <button type="button" (click)="closeModals()" class="btn btn-outline">Cancelar</button>
+          <button
+            type="submit"
+            class="btn btn-primary"
+            [disabled]="!createForm.valid || isCreating">
+            <i *ngIf="isCreating" class="fas fa-spinner fa-spin"></i>
+            {{ isCreating ? 'Creando...' : 'Crear Categoría' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Edit Category Modal -->
+<div class="modal" [ngClass]="{'active': showEditModal}">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2>Editar Categoría</h2>
+      <button (click)="closeModals()" class="modal-close">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    <div class="modal-body">
+      <form (ngSubmit)="updateCategory()" #editForm="ngForm">
+        <div class="form-group">
+          <label for="edit-name">Nombre de la categoría *</label>
+          <input
+            type="text"
+            id="edit-name"
+            [(ngModel)]="categoryForm.nombre_categoria"
+            name="nombre_categoria"
+            required
+            maxlength="30"
+            class="form-control">
+        </div>
+
+        <div class="form-group">
+          <label for="edit-description">Descripción</label>
+          <textarea
+            id="edit-description"
+            [(ngModel)]="categoryForm.descripcion"
+            name="descripcion"
+            maxlength="200"
+            class="form-control"
+            rows="3"></textarea>
+        </div>
+
+        <div class="form-group">
+          <label for="edit-image">URL de imagen</label>
+          <input
+            type="url"
+            id="edit-image"
+            [(ngModel)]="categoryForm.imagen_url"
+            name="imagen_url"
+            class="form-control">
+        </div>
+
+        <div class="form-group">
+          <label class="checkbox-label">
+            <input
+              type="checkbox"
+              [(ngModel)]="categoryForm.activa"
+              name="activa">
+            <span class="checkmark"></span>
+            Categoría activa
+          </label>
+        </div>
+
+        <div class="modal-actions">
+          <button type="button" (click)="closeModals()" class="btn btn-outline">Cancelar</button>
+          <button
+            type="submit"
+            class="btn btn-primary"
+            [disabled]="!editForm.valid || isCreating">
+            <i *ngIf="isCreating" class="fas fa-spinner fa-spin"></i>
+            {{ isCreating ? 'Actualizando...' : 'Actualizar Categoría' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Delete Category Modal -->
+<div class="modal" [ngClass]="{'active': showDeleteModal}">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2>Eliminar Categoría</h2>
+      <button (click)="closeModals()" class="modal-close">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="delete-confirmation">
+        <div class="warning-icon">
+          <i class="fas fa-exclamation-triangle"></i>
+        </div>
+        <h3>¿Estás seguro?</h3>
+        <p>Esta acción eliminará permanentemente la categoría "<strong>{{ selectedCategory?.nombre_categoria }}</strong>".</p>
+        <p class="warning-text">Esta acción no se puede deshacer.</p>
+      </div>
+
+      <div class="modal-actions">
+        <button (click)="closeModals()" class="btn btn-outline">Cancelar</button>
+        <button
+          (click)="deleteCategory()"
+          class="btn btn-danger"
+          [disabled]="isCreating">
+          <i *ngIf="isCreating" class="fas fa-spinner fa-spin"></i>
+          {{ isCreating ? 'Eliminando...' : 'Eliminar Categoría' }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

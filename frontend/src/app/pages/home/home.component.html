@@ -1,0 +1,73 @@
+<div class="home-container">  <!-- Hero Section -->
+  <section class="hero">
+    <div class="hero-container">
+      <div class="hero-content">
+        <h1 class="hero-title">Bienvenido a Cafetería de Ingeniería</h1>
+        <p class="hero-subtitle">Las mejores comidas y bebidas para disfrutar</p>
+        <div class="hero-actions">
+          <a routerLink="/menu" class="btn btn-primary">Ver Menú</a>
+        </div>
+      </div>
+      <div class="hero-image">
+        <img src="assets/images/hero-coffee.png" alt="Cafetera de Ingeniería"
+             onerror="this.src='assets/images/hero/hero-coffee.svg'" />
+      </div>
+    </div>
+  </section>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="loading-container">
+    <div class="loading-spinner"></div>
+    <p>Cargando...</p>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="error && !isLoading" class="error-container">
+    <p class="error-message">{{ error }}</p>
+    <button (click)="loadHomeData()" class="btn btn-primary">Reintentar</button>
+  </div>
+
+  <!-- Content -->
+  <div *ngIf="!isLoading && !error">
+    <!-- Categories Section -->
+    <section class="categories-section" *ngIf="categories.length > 0">
+      <div class="container">
+        <h2 class="section-title">Nuestras Categorías</h2>
+        <div class="categories-grid">
+          <div *ngFor="let category of categories" class="category-card"
+               [routerLink]="['/menu']" [queryParams]="{category: category._id}">            <div class="category-icon">
+              <i class="fas" [class]="getCategoryIcon(category.nombre_categoria)"></i>
+            </div>
+            <h3>{{ category.nombre_categoria }}</h3>
+            <p>{{ category.descripcion }}</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Featured Products Section -->
+    <section class="featured-section" *ngIf="featuredProducts.length > 0">
+      <div class="container">
+        <h2 class="section-title">Productos Destacados</h2>
+        <div class="products-grid">
+          <div *ngFor="let product of featuredProducts" class="product-card">            <div class="product-image">              <img [src]="product.url_imagen || 'assets/images/products/default-product.svg'"
+                   [alt]="product.nombre_producto"
+                   onerror="this.src='assets/images/products/default-product.svg'" />              <div class="product-overlay">
+              </div>
+            </div>            <div class="product-info">
+              <h3 class="product-name">{{ product.nombre_producto }}</h3>
+              <p class="product-description">{{ product.descripcion }}</p>              <div class="product-footer">
+                <span class="product-price">${{ product.precio }}</span>
+                <a [routerLink]="['/product', product._id]" class="btn btn-outline btn-sm">
+                  Ver Detalles
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>        <div class="section-footer">
+          <a routerLink="/menu" class="btn btn-primary">Ver Todos los Productos</a>
+        </div>
+      </div>
+    </section>
+  </div>
+</div>

@@ -1,0 +1,344 @@
+<div class="profile-container">
+  <div class="container">
+    <h1 class="page-title">Mi Perfil</h1>
+
+    <!-- Loading State -->
+    <div *ngIf="isLoading" class="loading-container">
+      <div class="loading-spinner"></div>
+      <p>Cargando información de perfil...</p>
+    </div>
+
+    <!-- Error State -->
+    <div *ngIf="error && !isLoading" class="error-container">
+      <i class="fas fa-exclamation-triangle"></i>
+      <h2>{{ error }}</h2>
+      <button (click)="loadUserProfile()" class="btn btn-primary">Reintentar</button>
+    </div>
+
+    <!-- Profile Content -->
+    <div *ngIf="!isLoading && !error && user" class="profile-content">
+      <div class="profile-card">
+        <div class="profile-header">
+          <div class="profile-avatar">
+            <i class="fas fa-user-circle"></i>
+          </div>
+          <div class="profile-info">
+            <h2 class="profile-name">{{ user.nombre }}</h2>
+            <p class="profile-email">{{ user.correo }}</p>
+            <p class="profile-status" [ngClass]="{'verified': user.email_verificado, 'unverified': !user.email_verificado}">
+              <i class="fas" [ngClass]="{'fa-check-circle': user.email_verificado, 'fa-times-circle': !user.email_verificado}"></i>
+              {{ user.email_verificado ? 'Cuenta verificada' : 'Cuenta pendiente de verificación' }}
+            </p>
+          </div>
+        </div>        <div class="profile-details">
+          <div class="detail-item">
+            <span class="detail-label">Teléfono:</span>
+            <span class="detail-value">{{ user.telefono || 'No registrado' }}</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Fecha de registro:</span>
+            <span class="detail-value">{{ formatDate(user.createdAt) }}</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Rol:</span>
+            <span class="detail-value admin-badge" *ngIf="user.rol === 'admin'">{{ getRoleDisplay(user.rol) }}</span>
+            <span class="detail-value" *ngIf="user.rol !== 'admin'">{{ getRoleDisplay(user.rol) }}</span>
+          </div>
+        </div>
+
+        <div class="profile-actions">
+          <button class="btn btn-primary btn-block">
+            <i class="fas fa-edit"></i> Editar Perfil
+          </button>
+        </div>
+      </div>      <div class="profile-tabs">
+        <div class="tab-header">
+          <button
+            class="tab-button"
+            [class.active]="activeTab === 'profile'"
+            (click)="setActiveTab('profile')">
+            <i class="fas fa-user"></i> Información Personal
+          </button>
+          <button
+            class="tab-button"
+            [class.active]="activeTab === 'password'"
+            (click)="setActiveTab('password')">
+            <i class="fas fa-key"></i> Cambiar Contraseña
+          </button>
+          <button
+            class="tab-button"
+            [class.active]="activeTab === 'account'"
+            (click)="setActiveTab('account')"
+            *ngIf="user.rol !== 'admin'">
+            <i class="fas fa-cog"></i> Configuración de Cuenta
+          </button>
+        </div>
+
+              <!-- Profile Information Tab -->
+        <div *ngIf="activeTab === 'profile'" class="tab-content">
+          <div class="content-card">
+            <div class="card-header">
+              <h2>Información Personal</h2>
+              <p>Actualiza tu información personal</p>
+            </div>
+            <div class="card-body">
+              <form (ngSubmit)="updateProfile()" #profileFormRef="ngForm">
+                <div class="form-row">
+                  <div class="form-group">
+                    <label for="nombre">Nombre completo</label>
+                    <div class="input-wrapper">
+                      <i class="fas fa-user"></i>
+                      <input
+                        type="text"
+                        id="nombre"
+                        name="nombre"
+                        [(ngModel)]="profileForm.nombre"
+                        required
+                        class="form-control"
+                        placeholder="Tu nombre completo">
+                    </div>
+                  </div>
+                </div>
+
+                <div class="form-row">
+                  <div class="form-group">
+                    <label for="correo">Correo electrónico</label>
+                    <div class="input-wrapper">
+                      <i class="fas fa-envelope"></i>
+                      <input
+                        type="email"
+                        id="correo"
+                        name="correo"
+                        [(ngModel)]="profileForm.correo"
+                        required
+                        class="form-control"
+                        placeholder="tucorreo@ejemplo.com">
+                    </div>
+                  </div>
+                </div>
+
+                <div class="form-row">
+                  <div class="form-group">
+                    <label for="telefono">Teléfono (opcional)</label>
+                    <div class="input-wrapper">
+                      <i class="fas fa-phone"></i>
+                      <input
+                        type="tel"
+                        id="telefono"
+                        name="telefono"
+                        [(ngModel)]="profileForm.telefono"
+                        class="form-control"
+                        placeholder="Tu número de teléfono">
+                    </div>
+                  </div>
+                </div>
+
+                <div class="form-actions">
+                  <button
+                    type="submit"
+                    class="btn btn-primary"
+                    [disabled]="!isProfileFormValid || isUpdatingProfile">
+                    <i class="fas fa-spinner fa-spin" *ngIf="isUpdatingProfile"></i>
+                    <i class="fas fa-save" *ngIf="!isUpdatingProfile"></i>
+                    {{ isUpdatingProfile ? 'Guardando...' : 'Guardar cambios' }}
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+
+        <!-- Change Password Tab -->
+        <div *ngIf="activeTab === 'password'" class="tab-content">
+          <div class="content-card">
+            <div class="card-header">
+              <h2>Cambiar Contraseña</h2>
+              <p>Actualiza tu contraseña por seguridad</p>
+            </div>
+            <div class="card-body">
+              <form (ngSubmit)="changePassword()" #passwordFormRef="ngForm">
+                <div class="form-group">
+                  <label for="currentPassword">Contraseña actual</label>
+                  <div class="input-wrapper">
+                    <i class="fas fa-lock"></i>
+                    <input
+                      type="password"
+                      id="currentPassword"
+                      name="currentPassword"
+                      [(ngModel)]="passwordForm.currentPassword"
+                      required
+                      placeholder="Contraseña actual">
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label for="newPassword">Nueva contraseña</label>
+                  <div class="input-wrapper">
+                    <i class="fas fa-key"></i>
+                    <input
+                      type="password"
+                      id="newPassword"
+                      name="newPassword"
+                      [(ngModel)]="passwordForm.newPassword"
+                      (input)="validatePassword(passwordForm.newPassword)"
+                      required
+                      placeholder="Nueva contraseña">
+                  </div>
+
+                  <!-- Password Requirements -->
+                  <div class="password-requirements" *ngIf="passwordForm.newPassword">
+                    <h4>Requisitos de contraseña:</h4>
+                    <div class="requirement" [class.valid]="passwordRequirements.minLength">
+                      <i class="fas fa-check" *ngIf="passwordRequirements.minLength"></i>
+                      <i class="fas fa-times" *ngIf="!passwordRequirements.minLength"></i>
+                      Al menos 8 caracteres
+                    </div>
+                    <div class="requirement" [class.valid]="passwordRequirements.hasUpper">
+                      <i class="fas fa-check" *ngIf="passwordRequirements.hasUpper"></i>
+                      <i class="fas fa-times" *ngIf="!passwordRequirements.hasUpper"></i>
+                      Una letra mayúscula
+                    </div>
+                    <div class="requirement" [class.valid]="passwordRequirements.hasLower">
+                      <i class="fas fa-check" *ngIf="passwordRequirements.hasLower"></i>
+                      <i class="fas fa-times" *ngIf="!passwordRequirements.hasLower"></i>
+                      Una letra minúscula
+                    </div>
+                    <div class="requirement" [class.valid]="passwordRequirements.hasNumber">
+                      <i class="fas fa-check" *ngIf="passwordRequirements.hasNumber"></i>
+                      <i class="fas fa-times" *ngIf="!passwordRequirements.hasNumber"></i>
+                      Un número
+                    </div>
+                    <div class="requirement" [class.valid]="passwordRequirements.hasSpecial">
+                      <i class="fas fa-check" *ngIf="passwordRequirements.hasSpecial"></i>
+                      <i class="fas fa-times" *ngIf="!passwordRequirements.hasSpecial"></i>
+                      Un carácter especial
+                    </div>
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label for="confirmPassword">Confirmar nueva contraseña</label>
+                  <div class="input-wrapper">
+                    <i class="fas fa-check-circle"></i>
+                    <input
+                      type="password"
+                      id="confirmPassword"
+                      name="confirmPassword"
+                      [(ngModel)]="passwordForm.confirmPassword"
+                      required
+                      placeholder="Confirma la nueva contraseña">
+                  </div>
+                  <div *ngIf="passwordForm.confirmPassword && passwordForm.newPassword !== passwordForm.confirmPassword"
+                       class="field-error">
+                    Las contraseñas no coinciden
+                  </div>
+                </div>
+
+                <div class="form-actions">
+                  <button
+                    type="submit"
+                    class="btn btn-primary"
+                    [disabled]="!isPasswordFormValid || isChangingPassword">
+                    <i class="fas fa-spinner fa-spin" *ngIf="isChangingPassword"></i>
+                    <i class="fas fa-key" *ngIf="!isChangingPassword"></i>
+                    {{ isChangingPassword ? 'Cambiando...' : 'Cambiar Contraseña' }}
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>        <!-- Account Settings Tab -->
+        <div *ngIf="activeTab === 'account' && user.rol !== 'admin'" class="tab-content">
+          <div class="content-card">
+            <div class="card-header">
+              <h2>Configuración de Cuenta</h2>
+              <p>Gestiona tu cuenta y sesión</p>
+            </div>
+            <div class="card-body">
+              <div class="account-actions">
+                <button class="btn btn-danger" (click)="openDeleteModal()">
+                  <i class="fas fa-trash"></i> Eliminar cuenta
+                </button>
+
+                <button class="btn btn-secondary" (click)="logout()">
+                  <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>      <div class="admin-actions" *ngIf="user.rol === 'admin'">
+        <div class="action-card">
+          <div class="action-icon">
+            <i class="fas fa-sign-out-alt"></i>
+          </div>
+          <div class="action-content">
+            <h3>Cerrar sesión</h3>
+            <p>Cierra tu sesión actual</p>
+            <button class="btn btn-primary" (click)="logout()">Cerrar sesión</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="logout-section" *ngIf="user.rol !== 'admin'">
+        <button (click)="logout()" class="btn btn-danger btn-block">
+          <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Delete Account Modal -->
+<div class="modal-overlay" *ngIf="showDeleteModal" (click)="closeDeleteModal()">
+  <div class="modal" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3>Eliminar Cuenta</h3>
+      <button class="modal-close" (click)="closeDeleteModal()">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="warning-icon">
+        <i class="fas fa-exclamation-triangle"></i>
+      </div>
+      <p>
+        <strong>¿Estás seguro de que quieres eliminar tu cuenta?</strong>
+      </p>
+      <p>
+        Esta acción es irreversible. Se eliminarán permanentemente:
+      </p>
+      <ul>
+        <li>Tu información personal</li>
+        <li>Historial de pedidos</li>
+        <li>Productos favoritos</li>
+        <li>Todos los datos asociados a tu cuenta</li>
+      </ul>
+      <p>
+        Para confirmar, escribe <strong>ELIMINAR</strong> en el campo de abajo:
+      </p>
+      <div class="form-group">
+        <input
+          type="text"
+          [(ngModel)]="deleteConfirmText"
+          placeholder="Escribe ELIMINAR para confirmar"
+          class="form-control">
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button
+        class="btn btn-secondary"
+        (click)="closeDeleteModal()">
+        Cancelar
+      </button>
+      <button
+        class="btn btn-danger"
+        [disabled]="deleteConfirmText !== 'ELIMINAR' || isDeletingAccount"
+        (click)="deleteAccount()">
+        <i class="fas fa-spinner fa-spin" *ngIf="isDeletingAccount"></i>
+        <i class="fas fa-trash" *ngIf="!isDeletingAccount"></i>
+        {{ isDeletingAccount ? 'Eliminando...' : 'Eliminar Cuenta' }}
+      </button>
+    </div>
+  </div>
+</div>

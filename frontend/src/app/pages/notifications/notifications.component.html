@@ -1,0 +1,61 @@
+<div class="notifications-container">
+  <div class="container">
+    <div class="page-header">
+      <h1 class="page-title">Notificaciones</h1>
+    </div>
+
+    <!-- Loading State -->
+    <div *ngIf="isLoading" class="loading-container">
+      <div class="loading-spinner"></div>
+      <p>Cargando notificaciones...</p>
+    </div>
+
+    <!-- Error State -->
+    <div *ngIf="error && !isLoading" class="error-container">
+      <i class="fas fa-exclamation-triangle"></i>
+      <h2>{{ error }}</h2>
+      <button (click)="reloadNotifications()" class="btn btn-primary">Reintentar</button>
+    </div>
+
+    <!-- Empty State -->
+    <div *ngIf="!isLoading && !error && (!notifications || notifications.length === 0)" class="empty-state">
+      <i class="fas fa-bell-slash"></i>
+      <h2>No tienes notificaciones</h2>
+      <p>Cuando recibas actualizaciones sobre tus pedidos o promociones especiales, aparecerán aquí</p>
+    </div>
+
+    <!-- Notifications List -->
+    <div *ngIf="!isLoading && !error && notifications && notifications.length > 0" class="notifications-list">
+      <div *ngFor="let notification of notifications"
+           class="notification-card"
+           [class.unread]="notification.estado === 'no_leido' || !notification.leida"
+           (click)="markAsRead(notification)">
+        <div class="notification-icon" [ngClass]="notificationIconClass(notification.tipo)">
+          <i class="fas" [ngClass]="notificationIconType(notification.tipo)"></i>
+        </div>
+        <div class="notification-content">
+          <div class="notification-header">
+            <h3 class="notification-title">{{ notification.titulo || 'Notificación' }}</h3>
+            <span class="notification-time">{{ formatDate(notification.fecha_hora || notification.createdAt) }}</span>
+          </div>
+          <p class="notification-message">{{ notification.mensaje }}</p>
+        </div>
+        <div class="notification-actions">
+          <button *ngIf="notification.estado === 'no_leido' || !notification.leida"
+                  (click)="markAsRead(notification); $event.stopPropagation()"
+                  class="btn-icon mark-read"
+                  title="Marcar como leída">
+            <i class="fas fa-check"></i>
+          </button>
+
+          <button *ngIf="notification.id_orden"
+                  (click)="navigateToOrder(notification.id_orden); $event.stopPropagation()"
+                  class="btn-icon view-order"
+                  title="Ver orden">
+            <i class="fas fa-eye"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
